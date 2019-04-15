@@ -1,81 +1,57 @@
-"""
+"""  # {{{
 [x] Import count_syllables module
 [x] Load a training-corpus text file
 [x] Process the training corpus for spaces, newline breaks, and so on
-"""
-from count_syllables import count_syllables
-from collections import defaultdict
-
-# Test count_syllables()
-with open('train.txt', 'r') as f:
-    corpus = f.read().split()
-
-TEST_WORDS = ["test", "wordless", "movement"]
-print("---")
-print("Syllable Test")
-for word in TEST_WORDS:
-    print(f"    Word: '{word}', syllables: '{count_syllables(word)}'")
-print("---")
-
-"""
 [x] Map each word in corpus to the word after (Markov model order 1)
 [x] Map each word pair in corpus to the word after (Markov model order 2)
 [ ] Give user choice of generating full haiku, redoing lines 2 or 3, or exiting
-"""
 
-"""
-nums = list(range(1, 100 + 1))
+"""  # }}}
 
-words = corpus[:10]
-print(words)
+from collections import defaultdict
+from count_syllables import count_syllables
+import random
 
-o_1, o_2 = defaultdict(list), defaultdict(list)
-
-for a, b, c in zip(words, words[1:], words[2:]):
-    # print(a, b, c)
-    o_1[a].append(b)
-    o_2[a, b].append(c)
-    # print(a, b)
-
-print(o_1)
-print(o_2)
-"""
-
-order_1, order_2 = defaultdict(list), defaultdict(list)
+# Build markov dictionaries
+with open('train.txt', 'r') as f:
+    CORPUS = f.read().split()
+ORDER_1, ORDER_2  = defaultdict(list), defaultdict(list)
+for first, second, third in zip(CORPUS, CORPUS[1:], CORPUS[2:]):
+    ORDER_1[first].append(second)
+    ORDER_2[first, second].append(third)
 
 
-for first, second, third in zip(corpus, corpus[1:], corpus[2:]):
+def new_line(seed_word="", line_length=5):
+    first_word = seed_word if seed_word else random.choice(CORPUS)
+    second_word = random.choice(ORDER_1.get(first_word))
+    words = [first_word, second_word]
 
-    order_1[first].append(second)
+    print(words)
+    syllables = count_syllables(" ".join(words))
 
-    # order_2[first, second].append(third)
-    # TODO: account for end of list
+    count = 0
+    while syllables != line_length and count < 10:
+        count = count + 1
+        random.shuffle(ORDER_2.get((first_word, second_word)))
+        # word = random.choice(ORDER_2.get((first_word, second_word)))
+        for word in ORDER_2.get((first_word, second_word)):
+            print(word)
 
-    # Build markov chain order 2
-    if (first, second) in order_2:
-        order_2[first, second].append(third)
-    else:
-        order_2[first, second] = [third]
+        # if (syllables + count_syllables(word)) <= 5:
+        #     words.append(word)
+        #     syllables = syllables + count_syllables(word)
+        #     first_word = second_word
+        #     second_word = word
+
+    # third_word = ""
+    # while not third_word:
+    #     if (seed_word, second_word) in ORDER_2:
+    #         third_word = random.choice(ORDER_2[seed_word, second_word])
+    # "".join([])
+    return " ".join(words)
 
 
-print(list(zip(corpus, corpus[1:])))
-# print(order_2)
-
-# if first in order_1:
-#     order_1[first].append(second)
-# else:
-#     order_1[first] = [second]
-# print(order_1['voicing'])
-# print((order_2['of', 'the']))
-
-# print(len(order_1))
-# print(len(order_2))
-# print(order_1)
-# print(order_2)
-
-# print(len(corpus))
-# print(len(set(corpus)))
-# print(corpus[-1])
+print(new_line())
 
 
 """
