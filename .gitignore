@@ -3,4 +3,7 @@ __pycache__/*
 .idea/*
 Pipfile
 .DS_store
+.vscode
+.vscode/*
+Pipfile.lock
 
